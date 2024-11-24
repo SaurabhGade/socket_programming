@@ -18,10 +18,14 @@ typedef struct sockaddr_in     sockaddr_in_t;
 typedef struct sockaddr        sockaddr_t;  
 typedef unsigned short         port_t;
 typedef int                    sockfd_t;
+typedef enum {
+  false, true;
+} boot_t;
 void err(char *msg);
 int getIPv4UDPSocket();
 void getIPv4UDPAddress(char *ip, port_t port, sockaddr_in_t *addr);
 void bindIPv4UDPAddress(sockfd_t fd, sockaddr_in_t *addr);
+size_t send_message(char *buff, FILE *input);
 
 #endif // __STD_HEADER__
 
@@ -58,5 +62,21 @@ void bindIPv4UDPAddress(sockfd_t fd, sockaddr_in_t *addr){
   if(bind(fd, (sockaddr_t*)addr, sizeof(*addr)) != 0)
     err("Bind failed\n");
   return;
+}
+size_t send_message(char *buff, port_t port, FILE *input){
+  sockfd fd;
+  sockaddr_in_t addr;
+  sockfd fd = getIPv4UDPSocket();
+  getIPv4UDPAddress("", port, &addr);
+
+  size_t count = 0;
+  size_t n;
+  while(true){
+    n = fread(buff, BUFF_SIZE-1 , 1, input);
+    buff[n] = 0;
+    if(!strcmp(buff, "EXIT\n"))
+      break;
+    sendto(fd, buff, n, 0, &addr, sizeof(addr));
+  }
 }
 #endif // __STD_HEADER__IMPL
