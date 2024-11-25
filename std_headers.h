@@ -231,9 +231,9 @@ void offline(){
   sys_err_handler("System is offline\n");
 }
 
-void print_online_users (){
+void print_online_users (){ 
   refresh_system();
-  fprintf(stdout, "%s", "Online\n");
+  fprintf(stdout, "%s %zu %s", "Online:\t", sys.online_count, "\n");
   for(int i = 0; i < sys.online_count; i++){
     if(sys.users_port[i])
       fprintf(stdout, "id = %d, port = %hu\n", i, sys.users_port[i]);
