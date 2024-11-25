@@ -121,9 +121,11 @@ size_t receive_message(port_t port, FILE *output){
   fd = getIPv4UDPSocket();
   getIPv4UDPAddress("", port, &serv);
   bindIPv4UDPAddress(fd, &serv);
-  n = recvfrom(fd, buff, BUFF_SIZE - 1, 0, (sockaddr_t *)&cli, &addrLen);
+  n = recvfrom(fd, buff, BUFF_SIZE - 2, 0, (sockaddr_t *)&cli, &addrLen);
+  buff[n-1] = '\n';
   buff[n] = 0;
-  fprintf(output, "%s", buff);
+  fwrite(buff, n, 1, output);
+  //fprintf(output, "%s", buff);
   count += n;
   close(fd);
   return count;
@@ -161,6 +163,8 @@ void init_system(port_t port){
 void sys_err_handler    (char *msg){
   if(sys.sys_file != NULL)
     fclose(sys.sys_file);
+  offline();
+  close(sys.currnt_system_port);
   err(msg);
 }
 void refresh_system     (){
