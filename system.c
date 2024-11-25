@@ -1,8 +1,9 @@
 #include "./std_headers.h"
 #define OPT_CNT 5 
 void print_all_options(){
+  refresh_system();
   char *op[OPT_CNT];
-  op[0] = "Eter q to quit\n";
+  op[0] = "0. Enter 0 to quit\n";
   op[1] = "1. Print all options\n";
   op[2] = "2. Print online users\n";
   op[3] = "3. Start communication\n";
@@ -24,6 +25,9 @@ bool validate_sys(size_t id){
 }
 void start_chat(size_t id){
   port_t port = sys.users_port[id];
+  FILE *temp  = fopen(".temp_file", "wr+");
+  send_message(port, stdin);
+  receive_message(port, stdout);
   return;
 }
 void start_communication(){
@@ -33,7 +37,7 @@ void start_communication(){
   while(flag){
     fscanf(stdin, "%hhu", &t);
     switch(t){
-      case 'q':
+      case '0':
         flag = false;
         break;
       case 1:
@@ -66,6 +70,6 @@ int main(int argc, char **argv){
   init_system(port);
   online();
   start_communication();
-//  offline();
+  offline();
   fclose(sys.sys_file);
 }

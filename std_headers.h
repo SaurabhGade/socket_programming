@@ -103,14 +103,10 @@ size_t send_message(port_t port, FILE *input){
   size_t count = 0;
   size_t n, cnt, sbytes;
   char *msg = NULL;
-  while(true){
-    n = getline(&msg, &cnt, input);
-    sbytes = sendto(fd, msg, n, 0, (sockaddr_t*)&addr, sizeof(addr));
-    if(strcmp(msg, "Exit\n") == 0)
-      break;
-    count += sbytes;
-    free(msg);
-  }
+  n = getline(&msg, &cnt, input);
+  sbytes = sendto(fd, msg, n, 0, (sockaddr_t *)&addr, sizeof(addr));
+  count += sbytes;
+  free(msg);
   close(fd);
   return count;
 }
@@ -125,14 +121,10 @@ size_t receive_message(port_t port, FILE *output){
   fd = getIPv4UDPSocket();
   getIPv4UDPAddress("", port, &serv);
   bindIPv4UDPAddress(fd, &serv);
-  while(true){
-    n = recvfrom(fd, buff, BUFF_SIZE-1, 0, (sockaddr_t*)&cli, &addrLen);
-    buff[n] = 0;
-    if(strcmp(buff, "Exit\n") == 0)
-      break;
-    fprintf(output, "%s", buff);
-    count += n;
-  }
+  n = recvfrom(fd, buff, BUFF_SIZE - 1, 0, (sockaddr_t *)&cli, &addrLen);
+  buff[n] = 0;
+  fprintf(output, "%s", buff);
+  count += n;
   close(fd);
   return count;
 }
