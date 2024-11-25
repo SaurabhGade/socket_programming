@@ -43,6 +43,7 @@ typedef struct usrt_port_info{
   port_t users_port[MAX_SYSTEMS];
   size_t online_count;
   FILE  *sys_file;
+  bool  isOnline;
 } upi_t;
 upi_t sys = {.currnt_system_port = 0, .online_count = 0, .sys_file = NULL}; 
 
@@ -52,6 +53,7 @@ bool is_port_available  ();
 void refresh_system     ();
 void online             ();
 void offline            ();
+void print_online_users ();
 
 
 #endif // __STD_HEADER__
@@ -153,6 +155,7 @@ void init_system(port_t port){
   assert(port != 0);
   sys.currnt_system_port = port;
   sys.online_count       = 0;
+  sys.isOnline           = false;
   memset(&sys.users_port, 0, MAX_SYSTEMS);
   sys.sys_file = fopen("./.sysinfo", "rb+");
   if(sys.sys_file == NULL){
@@ -176,7 +179,7 @@ void refresh_system     (){
   port_t t;
   while(fread(&t, sizeof(t), 1, sys.sys_file) == 1){
     if(t != 0 && t != sys.currnt_system_port)
-      sys.users_port[sys.online_count++] += t;
+      sys.users_port[sys.online_count++] = t;
   }
 }
 bool is_port_available(){
@@ -206,6 +209,7 @@ void online(){
       fseek(sys.sys_file, pos-sizeof(port_t), SEEK_SET);
     fwrite(&sys.currnt_system_port, sizeof(port_t), 1, sys.sys_file);
   }
+  sys.isOnline = true;
 }
 void offline(){
   assert(sys.sys_file != NULL);
@@ -224,6 +228,15 @@ void offline(){
       break;
     }
   }
+  sys_err_handler("System is offline\n");
 }
 
+void print_online_users (){
+  refresh_system();
+  fprintf(stdout, "%s", "Online\n");
+  for(int i = 0; i < sys.online_count; i++){
+    if(sys.users_port[i])
+      fprintf(stdout, "id = %d, port = %hu\n", i, sys.users_port[i]);
+  }
+}
 #endif /* __STD_HEADER__IMPL */
